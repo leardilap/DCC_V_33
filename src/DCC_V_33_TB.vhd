@@ -7,7 +7,7 @@ END DCC_V_33_TB;
 
 ARCHITECTURE DCC_V_33_TB_ARCH OF DCC_V_33_TB IS
 
-    COMPONENT DCC_V_33
+    COMPONENT DCC_V_33 IS
         PORT (
 			OSC_50 			: IN STD_LOGIC_VECTOR (2 DOWNTO 0);
 			
@@ -52,7 +52,8 @@ ARCHITECTURE DCC_V_33_TB_ARCH OF DCC_V_33_TB IS
 			J1_152			: IN STD_LOGIC;
 			XT_IN_N			: IN STD_LOGIC;
 			XT_IN_P 		: IN STD_LOGIC
-    END COMPONENT;
+		);
+    END COMPONENT DCC_V_33;
 
 	SIGNAL		OSC_50 			: STD_LOGIC_VECTOR (2 DOWNTO 0);
 			
@@ -96,16 +97,56 @@ ARCHITECTURE DCC_V_33_TB_ARCH OF DCC_V_33_TB IS
 	SIGNAL		FPGA_CLK_B_P	: STD_LOGIC;
 	SIGNAL		J1_152			: STD_LOGIC;
 	SIGNAL		XT_IN_N			: STD_LOGIC;
-	SIGNAL		XT_IN_P 		: STD_LOGIC
+	SIGNAL		XT_IN_P 		: STD_LOGIC;
 
-    constant OSC_50_Period : TIME := 20 NS;
+    CONSTANT OSC_50_Period : TIME := 20 ns;
 	
 BEGIN
-
+	
+	UUT_DCC_V_33 : DCC_V_33
+        PORT MAP(
+			OSC_50 			  => OSC_50,
+			LEDG			  => LEDG,			
+			LEDR			  => LEDR,			
+			KEY				  => KEY,			
+			SW				  => SW,	
+			AD_SCLK			  => AD_SCLK,			
+			AD_SDIO			  => AD_SDIO,			
+			ADA_D			  => ADA_D,			
+			ADA_DCO			  => ADA_DCO,			
+			ADA_OE			  => ADA_OE,			
+			ADA_OR			  => ADA_OR,			
+			ADA_SPI_CS		  => ADA_SPI_CS,		
+			ADB_D			  => ADB_D,			
+			ADB_DCO			  => ADB_DCO,			
+			ADB_OE			  => ADB_OE,			
+			ADB_OR			  => ADB_OR,			
+			ADB_SPI_CS		  => ADB_SPI_CS,	
+			AIC_BCLK		  => AIC_BCLK,		
+			AIC_DIN			  => AIC_DIN,			
+			AIC_DOUT		  => AIC_DOUT,		
+			AIC_LRCIN		  => AIC_LRCIN,		
+			AIC_LRCOUT		  => AIC_LRCOUT,		
+			AIC_SPI_CS		  => AIC_SPI_CS,		
+			AIC_XCLK		  => AIC_XCLK,		
+			CLKIN1			  => CLKIN1,			
+			CLKOUT0			  => CLKOUT0,			
+			DA				  => DA,				
+			DB				  => DB,				
+			FPGA_CLK_A_N	  => FPGA_CLK_A_N,	
+			FPGA_CLK_A_P	  => FPGA_CLK_A_P,	
+			FPGA_CLK_B_N	  => FPGA_CLK_B_N,	
+			FPGA_CLK_B_P	  => FPGA_CLK_B_P,	
+			J1_152			  => J1_152,			
+			XT_IN_N			  => XT_IN_N,			
+			XT_IN_P 		  => XT_IN_P 		
+		);
+	
 	OSC_50(0) <= NOT OSC_50(0) AFTER OSC_50_Period/2;
 	KEY(3) <= '1';
 	ADA_DCO <= OSC_50(0);
-	ADB_DCO <= ADB_DCO(0);
+	ADB_DCO <= OSC_50(0);
+	
 	ADB_D	<= STD_LOGIC_VECTOR( TO_UNSIGNED(215, 14) );
 	ADB_D	<= STD_LOGIC_VECTOR( TO_UNSIGNED(1215, 14) );
 	

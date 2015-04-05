@@ -42,7 +42,7 @@
 //   V0.1  |Luis Ardila  	|04/04/15      |
 // ============================================================================
 
-`default_nettype none
+//`default_nettype none
 
 module DCC_V_33(
 
@@ -139,10 +139,10 @@ input		          		CLKIN1;
 output		        		CLKOUT0;
 output		[13:0]		DA;
 output		[13:0]		DB;
-inout		          		FPGA_CLK_A_N;
-inout		          		FPGA_CLK_A_P;
-inout		          		FPGA_CLK_B_N;
-inout		          		FPGA_CLK_B_P;
+output	          		FPGA_CLK_A_N;
+output	          		FPGA_CLK_A_P;
+output	          		FPGA_CLK_B_N;
+output	          		FPGA_CLK_B_P;
 inout		          		J1_152;
 input		          		XT_IN_N;
 input		          		XT_IN_P;
@@ -160,8 +160,6 @@ wire							pll_locked;
 
 reg		[12:0]			i_sine1;
 reg		[12:0]			i_sine10;
-wire		[12:12]			t_sine1;
-wire		[12:12]			t_sine10;
 reg		[12:0]			is_sine1;
 reg		[12:0]			is_sine10;
 reg		[12:0]			iu_sine1;
@@ -176,13 +174,13 @@ reg		[13:0]			per_a2db_d;
 reg		[13:0]			a2da_data;
 reg		[13:0]			a2db_data;
 
-wire		[13:0]			fir_in_data;
-wire		[34:0]			fir_data;
+reg		[31:0]			count;
 
-wire		[35:0]			e_out;
-wire		[35:0]			y_out;
+reg		[6:0]				cnt1;
+reg 							dir1;
 
-
+reg		[2:0]				cnt10;
+reg 							dir10;
 //=======================================================
 //  Structural coding
 //=======================================================
@@ -229,12 +227,12 @@ pll		pll_inst(
 			);
 			
 //--- NCO function 1 MHz
-reg		[6:0]				cnt1;
-reg 		dir1;
 always @(negedge reset_n or posedge sys_clk)
 begin
 	if (!reset_n) begin
 		cnt1	<= 0;
+		i_sine1 <= 13'd500;
+		dir1 <= 0;
 	end
 	else begin
 		cnt1 <= cnt1 + 1'b1;
@@ -242,21 +240,21 @@ begin
 			dir1 <= ~dir1;
 		end 
 		if (dir1 == 1'b1) begin
-			i_sine1	<= i_sine1 + 13'd30;
+			i_sine1	<= i_sine1 + 13'd60;
 		end
 		else begin 
-			i_sine1	<= i_sine1 - 13'd30;
+			i_sine1	<= i_sine1 - 13'd60;
 		end 
 	end
 end
 
 //--- NCO function 10 MHz
-reg		[2:0]				cnt10;
-reg 		dir10;
 always @(negedge reset_n or posedge sys_clk)
 begin
 	if (!reset_n) begin
 		cnt10	<= 0;
+		i_sine10 <= 13'd200;
+		dir10 <= 0;
 	end
 	else begin
 		cnt10 <= cnt10 + 1'b1;
@@ -264,10 +262,10 @@ begin
 			dir10 <= ~dir10;
 		end 
 		if (dir10 == 1'b1) begin
-			i_sine10	<= i_sine10 + 13'd50;
+			i_sine10	<= i_sine10 + 13'd100;
 		end
 		else begin 
-			i_sine10	<= i_sine10 - 13'd50;
+			i_sine10	<= i_sine10 - 13'd100;
 		end
 	end
 end
@@ -359,7 +357,6 @@ end
 //--- count for Heartbeat
 //=======================================================
 
-reg		[31:0]				count;
 always @(negedge reset_n or posedge sys_clk)
 begin
 	if (!reset_n) begin
