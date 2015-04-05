@@ -122,8 +122,8 @@ DCC_V_33 UUT_DCC_V_33(
 always
 begin
     #10 OSC_50[0] 	= ~OSC_50[0];   // every ten nanoseconds invert
-	#10 ADA_DCO 	= ~ADA_DCO;
-	#10 ADB_DCO 	= ~ADB_DCO;
+	#5 ADA_DCO 	= ~ADA_DCO;
+	#5 ADB_DCO 	= ~ADB_DCO;
 	assign ADA_D = 13'd215;
 	assign ADB_D = 13'd1215;
 	KEY[3] <= 1'b1;
@@ -138,7 +138,7 @@ begin
 	
 // at time 0
     KEY[3] = 1'b0;
-	#10 KEY[3] = 1'b1;
+	#100 KEY[3] = 1'b1;
 end
 
 endmodule

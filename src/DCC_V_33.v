@@ -176,10 +176,10 @@ reg		[13:0]			a2db_data;
 
 reg		[31:0]			count;
 
-reg		[6:0]				cnt1;
+reg		[5:0]				cnt1;
 reg 							dir1;
 
-reg		[2:0]				cnt10;
+reg		[1:0]				cnt10;
 reg 							dir10;
 //=======================================================
 //  Structural coding
@@ -226,12 +226,12 @@ pll		pll_inst(
 			.locked(pll_locked)
 			);
 			
-//--- NCO function 1 MHz
+//--- triangular function 781.25 kHz
 always @(negedge reset_n or posedge sys_clk)
 begin
 	if (!reset_n) begin
 		cnt1	<= 0;
-		i_sine1 <= 13'd500;
+		i_sine1 <= -13'd3960;
 		dir1 <= 0;
 	end
 	else begin
@@ -240,20 +240,20 @@ begin
 			dir1 <= ~dir1;
 		end 
 		if (dir1 == 1'b1) begin
-			i_sine1	<= i_sine1 + 13'd60;
+			i_sine1	<= i_sine1 + 13'd127;
 		end
 		else begin 
-			i_sine1	<= i_sine1 - 13'd60;
+			i_sine1	<= i_sine1 - 13'd127;
 		end 
 	end
 end
 
-//--- NCO function 10 MHz
+//--- triangular function 12.5 MHz
 always @(negedge reset_n or posedge sys_clk)
 begin
 	if (!reset_n) begin
 		cnt10	<= 0;
-		i_sine10 <= 13'd200;
+		i_sine10 <= -13'd500;
 		dir10 <= 0;
 	end
 	else begin
@@ -262,10 +262,10 @@ begin
 			dir10 <= ~dir10;
 		end 
 		if (dir10 == 1'b1) begin
-			i_sine10	<= i_sine10 + 13'd100;
+			i_sine10	<= i_sine10 + 13'd500;
 		end
 		else begin 
-			i_sine10	<= i_sine10 - 13'd100;
+			i_sine10	<= i_sine10 - 13'd500;
 		end
 	end
 end
