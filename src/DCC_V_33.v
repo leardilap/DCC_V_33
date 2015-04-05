@@ -374,14 +374,24 @@ end
 //=======================================================
 //--- FIR
 //=======================================================
-assign	fir_in_data	= o_sine_p;
+assign	fir_in_data	= o_sine_p; // a2db_data; // a2da_data;
 FIR_HAM_V_33 FIR_HAM_V_33_INST(
-			.clk(OSC_50[0]),
+			.clk(OSC_50[0]),		// THINK of the clock Freq effect
 			.clk_enable(1'b1),
 			.reset(reset_n),
 			.filter_in(fir_in_data),
 			.filter_out_35(fir_data_35),
 			.filter_out_14(fir_data_14)
 			);
-
+			
+//=======================================================
+//--- FIR_LMS
+//=======================================================
+fir_lms fir_lms_inst( 
+	.clk(OSC_50[0]),  // std_logic 
+	.x_in(fir_in_data),
+	.d_in(fir_data_14),
+	.e_out(),
+	.y_out());	
+	
 endmodule
