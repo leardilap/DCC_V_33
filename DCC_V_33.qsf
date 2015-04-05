@@ -49,7 +49,6 @@ set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
-set_global_assignment -name VERILOG_FILE src/DCC_V_33.v
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
@@ -187,8 +186,6 @@ set_location_assignment PIN_AA28 -to FPGA_CLK_B_P
 set_location_assignment PIN_T29 -to ADA_DCO
 set_location_assignment PIN_Y28 -to FPGA_CLK_B_N
 set_location_assignment PIN_T30 -to ADB_DCO
-set_global_assignment -name QIP_FILE src/ip/add.qip
-set_global_assignment -name QIP_FILE src/ip/pll.qip
 set_global_assignment -name USE_CONFIGURATION_DEVICE ON
 set_global_assignment -name CYCLONEIII_CONFIGURATION_DEVICE EPCS64
 set_global_assignment -name FORCE_CONFIGURATION_VCCIO ON
@@ -199,5 +196,9 @@ set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -
 set_global_assignment -name ACTIVE_SERIAL_CLOCK FREQ_40MHZ
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name VERILOG_FILE matlab/FIR_HAM_V_33.v
+set_global_assignment -name VERILOG_FILE src/DCC_V_33.v
+set_global_assignment -name QIP_FILE src/ip/add.qip
+set_global_assignment -name QIP_FILE src/ip/pll.qip
 set_global_assignment -name SDC_FILE src/DCC_V_33.sdc
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

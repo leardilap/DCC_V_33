@@ -48,14 +48,16 @@ module FIR_HAM_V_33
                 clk_enable,
                 reset,
                 filter_in,
-                filter_out
+                filter_out_35,
+				filter_out_14,
                 );
 
   input   clk; 
   input   clk_enable; 
   input   reset; 
-  input   signed [15:0] filter_in; //sfix16_En14
-  output  signed [34:0] filter_out; //sfix35_En28
+  input   signed [13:0] filter_in; //sfix16_En14 // LA: input from 16 to 14 bits
+  output  signed [34:0] filter_out_35; //sfix35_En28
+  output  signed [13:0] filter_out_14; // LA: scaled
 
 ////////////////////////////////////////////////////////////////
 //Module Architecture: FIR_HAM_V_33
@@ -292,6 +294,8 @@ module FIR_HAM_V_33
   wire signed [34:0] add_signext_63; // sfix35_En28
   wire signed [35:0] add_temp_31; // sfix36_En28
   reg  signed [34:0] output_register; // sfix35_En28
+  reg  signed [34:0] output_register_35; // LA: scaled output 35 bits
+  reg  signed [13:0] output_register_14; // LA: scaled output 14 bits
 
   // Block Statements
   always @( posedge clk or negedge reset)
@@ -333,7 +337,8 @@ module FIR_HAM_V_33
       end
       else begin
         if (clk_enable == 1'b1) begin
-          delay_pipeline[0] <= filter_in;
+		  // LA: input is only 14 bits - padding with signed bit
+          delay_pipeline[0] <= {{3{filter_in[13]}},filter_in[12:0]}; 
           delay_pipeline[1] <= delay_pipeline[0];
           delay_pipeline[2] <= delay_pipeline[1];
           delay_pipeline[3] <= delay_pipeline[2];
@@ -631,14 +636,20 @@ module FIR_HAM_V_33
     begin: Output_Register_process
       if (reset == 1'b0) begin
         output_register <= 0;
+		output_register_35 <= 0;
+		output_register_14 <= 0;
       end
       else begin
         if (clk_enable == 1'b1) begin
           output_register <= sum32;
+		  output_register_35 <= (sum32 + 8192) >>> 18;
+		  output_register_14 <= output_register_35[13:0];
         end
       end
     end // Output_Register_process
 
   // Assignment Statements
-  assign filter_out = output_register;
+  assign filter_out_35 = output_register;		// Complete range
+  assign filter_out_14 = output_register_14;	// Scaled signal
+  
 endmodule  // FIR_HAM_V_33

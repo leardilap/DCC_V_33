@@ -181,6 +181,10 @@ reg 							dir1;
 
 reg		[1:0]				cnt10;
 reg 							dir10;
+
+wire		[13:0]			fir_in_data;
+wire		[34:0]			fir_data_35;
+wire		[13:0]			fir_data_14;
 //=======================================================
 //  Structural coding
 //=======================================================
@@ -368,8 +372,16 @@ begin
 end
 
 //=======================================================
-//--- probe points for data capture
+//--- FIR
 //=======================================================
-
+assign	fir_in_data	= o_sine_p;
+FIR_HAM_V_33 FIR_HAM_V_33_INST(
+			.clk(OSC_50[0]),
+			.clk_enable(1'b1),
+			.reset(reset_n),
+			.filter_in(fir_in_data),
+			.filter_out_35(fir_data_35),
+			.filter_out_14(fir_data_14)
+			);
 
 endmodule
