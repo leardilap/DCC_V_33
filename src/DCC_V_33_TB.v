@@ -127,6 +127,7 @@ begin
 	assign ADA_D = 13'd215;
 	assign ADB_D = 13'd1215;
 	KEY[3] <= 1'b1;
+	SW[4:0] <= 5'b11011;
 end
 
 initial

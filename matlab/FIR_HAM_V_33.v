@@ -672,6 +672,6 @@ module FIR_HAM_V_33
   // Assignment Statements
   assign filter_out_35 = output_register;		// Complete range
   assign filter_out_14 = output_register_14;	// Scaled signal
-  assign filter_in_out = delay_pipeline[18];
+  assign filter_in_out = delay_pipeline[0][13:0];
   
 endmodule  // FIR_HAM_V_33

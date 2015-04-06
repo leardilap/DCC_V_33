@@ -28,7 +28,9 @@
 //      SW : 
 //        SW[0] --> ADC DFS(Data Format Select)
 //        SW[1] --> ADC DCS(Duty Cycle Stabilizer Select)
-//        SW[2] --> Not use
+//        SW[2] --> Internal Signals or ADC A data Signed
+//		  SW[3] --> DAC A: FIR_OUT or FIR_IN
+//		  SW[4] --> DAC B: FIR_OUT or FIR_LMS_OUT
 //      KEY : 
 //        KEY[0]   --> Not use
 //        KEY[1]   --> Not use
@@ -187,13 +189,22 @@ wire		[13:0]			fir_in_data;
 wire		[13:0]			fir_lms_in_data;
 wire		[34:0]			fir_data_35;
 wire		[13:0]			fir_data_14;
+reg			[13:0]			u_fir_data_14;
+
+reg			[13:0]			u_fir_in_data;
+
+wire		[13:0]			fir_lms_out_14;
+reg			[13:0]			u_fir_lms_out_14;
+
+wire		[13:0]			fir_lms_e_14;
+reg			[13:0]			u_fir_lms_e_14;
 //=======================================================
 //  Structural coding
 //=======================================================
 // initial //
 //
 
-//--- globa signal assign
+//--- global signal assign
 assign	reset_n			= KEY[3];
 
 assign	FPGA_CLK_A_P	=  sys_clk_180deg;
@@ -204,10 +215,10 @@ assign	FPGA_CLK_B_N	= ~sys_clk_270deg;
 assign	LEDG[0]			= pll_locked;		// pll locked
 assign	LEDG[1]			= SW[0];			// (DFS)Data Format Select indicator
 assign	LEDG[2]			= SW[1];			// (DCS)Duty Cycle Stabilizer Select indicator
-assign	LEDG[3]			= !SW[2] ? ADA_OR : ADB_OR;	// Out-of-Range indicator
+assign	LEDG[3]			= ADA_OR; 			// Out-of-Range indicator
 assign	LEDG[4]			= ~KEY[0];			// reset 1MHz NCO output indicator
 assign	LEDG[5]			= ~KEY[1];			// reset 10MHz NCO output indicator
-assign	LEDG[6]			= SW[2];			// channel A or B indicator
+assign	LEDG[6]			= SW[2];			// Internal Signals or ADC A data Signed
 assign	LEDG[7]			= count[24];		// heartbeat
 
  // assign for ADC control signal
@@ -219,10 +230,12 @@ assign	ADB_OE			= 1'b0;				// enable ADB output
 assign	ADB_SPI_CS		= 1'b1;				// disable ADB_SPI_CS (CSB)
 
  // assign for DAC output data
-assign	DA = o_sine_p;
-assign	DB = o_sine_n;
+assign	DA = !SW[3] ? u_fir_data_14 : u_fir_in_data;				// FIR OUT or FIR IN
+assign	DB = !SW[4] ? u_fir_data_14 : u_fir_lms_out_14 ;	// FIR or FIR_LMS filter output
 
-//--- pll
+//=======================================================
+//--- PLL
+//=======================================================
 pll		pll_inst(
 			.inclk0(OSC_50[0]),
 			.c0(sys_clk),
@@ -231,8 +244,9 @@ pll		pll_inst(
 			.c3(sys_clk_270deg),
 			.locked(pll_locked)
 			);
-			
+//=======================================================
 //--- triangular function 781.25 kHz
+//=======================================================
 always @(negedge reset_n or posedge sys_clk)
 begin
 	if (!reset_n) begin
@@ -254,7 +268,9 @@ begin
 	end
 end
 
+//=======================================================
 //--- triangular function 12.5 MHz
+//=======================================================
 always @(negedge reset_n or posedge sys_clk)
 begin
 	if (!reset_n) begin
@@ -276,7 +292,9 @@ begin
 	end
 end
 
-
+//=======================================================
+//--- Creating unsigned signals
+//=======================================================
 always @(negedge reset_n or posedge sys_clk)
 begin
 	if (!reset_n) begin
@@ -293,14 +311,18 @@ begin
 	end
 end
 
+//=======================================================
 //--- Sum of the two signals
+//=======================================================
+
+//--- Unsigned test to send to DACs
 add		add_inst(
 			.dataa({1'b1,iu_sine1}),
 			.datab({1'b1,iu_sine10}),
 			.result(o_sine)
 			);
 
-//--- Sum of the two signals
+//--- Signed addition for internal test
 add		add_S_inst(
 			.dataa({is_sine1[12],is_sine1}),
 			.datab({is_sine10[12],is_sine10}),
@@ -383,9 +405,10 @@ end
 //=======================================================
 //--- FIR
 //=======================================================
-assign	fir_in_data	= os_sine; // a2db_data; // a2da_data;
+// input to FIR and FIR_LMS signed from internal triangular signals or ADC A data SIGNED
+assign	fir_in_data	= !SW[2] ? os_sine : a2da_data; 
 FIR_HAM_V_33 FIR_HAM_V_33_INST(
-			.clk(sys_clk),		// THINK of the clock Freq effect
+			.clk(sys_clk),	
 			.clk_enable(1'b1),
 			.reset(reset_n),
 			.filter_in(fir_in_data),
@@ -394,14 +417,41 @@ FIR_HAM_V_33 FIR_HAM_V_33_INST(
 			.filter_out_14(fir_data_14)
 			);
 			
+always @(negedge reset_n or posedge sys_clk)
+begin
+	if (!reset_n) begin
+		u_fir_in_data   <= 13'd0;
+		u_fir_data_14	<= 13'd0;
+	end
+	else begin
+		// unsigned outputs to put into the DACs
+		u_fir_in_data   <= {~fir_in_data[13],fir_in_data[12:0]};
+		u_fir_data_14	<= {~fir_data_14[13],fir_data_14[12:0]}; 
+	end
+end				
 //=======================================================
 //--- FIR_LMS
 //=======================================================
 fir_lms fir_lms_inst( 
 	.clk(sys_clk),  // std_logic 
-	.x_in(fir_lms_in_data),
+	.x_in(fir_in_data),
 	.d_in(fir_data_14),
-	.e_out(),
-	.y_out());	
-	
+	.e_out_36(),
+	.y_out_36(),
+	.e_out_14(fir_lms_e_14),
+	.y_out_14(fir_lms_out_14));
+   
+always @(negedge reset_n or posedge sys_clk)
+begin
+	if (!reset_n) begin
+		u_fir_lms_out_14	<= 13'd0;
+		u_fir_lms_e_14		<= 13'd0;
+	end
+	else begin
+		// unsigned outputs to put into the DACs
+		u_fir_lms_out_14	<= {~fir_lms_out_14[13],fir_lms_out_14[12:0]}; 
+		u_fir_lms_e_14		<= {~fir_lms_e_14[13],fir_lms_e_14[12:0]}; 
+	end
+end	
+//=======================================================	
 endmodule

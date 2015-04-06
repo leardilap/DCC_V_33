@@ -29,7 +29,8 @@ module fir_lms         //----> Interface
             Delay = 0) // Pipeline steps of multiplier
 	(input clk,  // 1 bit input 
 	input signed [W1-1:0] x_in, d_in,  // Inputs
-	output signed [W2-1:0] e_out, y_out);  // Results
+	output signed [W2-1:0] e_out_36, y_out_36,
+	output signed [W1-1:0] e_out_14, y_out_14);  // Results
 
 	// Signed data types are supported in 2001
 	// Verilog, and used whenever possible
@@ -39,7 +40,8 @@ module fir_lms         //----> Interface
 	wire signed [W1-1:0] emu;
 	wire signed [W2-1:0] p [0:L-1]; // 1. Product array 
 	wire signed [W2-1:0] xemu [0:L-1]; // 2. Product array 
-	wire signed [W2-1:0]  y, e; 
+	wire signed [W2-1:0] xemu_reg [0:L-1]; // 2. Product array 
+	wire signed [W2-1:0]  y, e, y_scaled, e_DIV2; 
 	
 	wire  clken, aclr;
 	wire  signed [W2-1:0] sum;  // Auxilary signals
@@ -120,7 +122,11 @@ module fir_lms         //----> Interface
 
 	assign sum=0; assign aclr=0; // Default for mult
 	assign clken=0;
-  
+	generate
+		for (I=0; I<L; I=I+1) begin: XemuA
+			assign xemu_reg[I] = (xemu[I] >>> 20);
+		end 
+	endgenerate
 	always @(posedge clk) begin: Store // Store these data or coefficients
 		d <= d_in; // Store desired signal in register 
 		x[0] <= x_in; // Get one data sample at a time 
@@ -157,39 +163,39 @@ module fir_lms         //----> Interface
 		x[31] <= x[30];
 		x[32] <= x[31];
 		
-		f[0] <= f[0] + xemu[0][35:20]; // implicit divide by 2
-		f[1] <= f[1] + xemu[1][35:20]; 
-		f[2] <= f[2] + xemu[2][35:20];
-		f[3] <= f[3] + xemu[3][35:20];
-		f[4] <= f[4] + xemu[4][35:20];
-		f[5] <= f[5] + xemu[5][35:20];
-		f[6] <= f[6] + xemu[6][35:20];
-		f[7] <= f[7] + xemu[7][35:20];
-		f[8] <= f[8] + xemu[8][35:20];
-		f[9] <= f[9] + xemu[9][35:20];
-		f[10] <= f[10] + xemu[10][35:20];
-		f[11] <= f[11] + xemu[11][35:20];
-		f[12] <= f[12] + xemu[12][35:20];
-		f[13] <= f[13] + xemu[13][35:20];
-		f[14] <= f[14] + xemu[14][35:20];
-		f[15] <= f[15] + xemu[15][35:20];
-		f[16] <= f[16] + xemu[16][35:20];
-		f[17] <= f[17] + xemu[17][35:20];
-		f[18] <= f[18] + xemu[18][35:20];
-		f[19] <= f[19] + xemu[19][35:20];
-		f[20] <= f[20] + xemu[20][35:20];
-		f[21] <= f[21] + xemu[21][35:20];
-		f[22] <= f[22] + xemu[22][35:20];
-		f[23] <= f[23] + xemu[23][35:20];
-		f[24] <= f[24] + xemu[24][35:20];
-		f[25] <= f[25] + xemu[25][35:20];
-		f[26] <= f[26] + xemu[26][35:20];
-		f[27] <= f[27] + xemu[27][35:20];
-		f[28] <= f[28] + xemu[28][35:20];
-		f[29] <= f[29] + xemu[29][35:20];
-		f[30] <= f[30] + xemu[30][35:20];
-		f[31] <= f[31] + xemu[31][35:20];
-		f[32] <= f[32] + xemu[32][35:20];
+		f[0] <= f[0] + xemu_reg[0][15:0];
+		f[1] <= f[1] + xemu_reg[1][15:0];
+		f[2] <= f[2] + xemu_reg[2][15:0];
+		f[3] <= f[3] + xemu_reg[3][15:0];
+		f[4] <= f[4] + xemu_reg[4][15:0];
+		f[5] <= f[5] + xemu_reg[5][15:0];
+		f[6] <= f[6] + xemu_reg[6][15:0];
+		f[7] <= f[7] + xemu_reg[7][15:0];
+		f[8] <= f[8] + xemu_reg[8][15:0];
+		f[9] <= f[9] + xemu_reg[9][15:0];
+		f[10] <= f[10] + xemu_reg[10][15:0];
+		f[11] <= f[11] + xemu_reg[11][15:0];
+		f[12] <= f[12] + xemu_reg[12][15:0];
+		f[13] <= f[13] + xemu_reg[13][15:0];
+		f[14] <= f[14] + xemu_reg[14][15:0];
+		f[15] <= f[15] + xemu_reg[15][15:0];
+		f[16] <= f[16] + xemu_reg[16][15:0];
+		f[17] <= f[17] + xemu_reg[17][15:0];
+		f[18] <= f[18] + xemu_reg[18][15:0];
+		f[19] <= f[19] + xemu_reg[19][15:0];
+		f[20] <= f[20] + xemu_reg[20][15:0];
+		f[21] <= f[21] + xemu_reg[21][15:0];
+		f[22] <= f[22] + xemu_reg[22][15:0];
+		f[23] <= f[23] + xemu_reg[23][15:0];
+		f[24] <= f[24] + xemu_reg[24][15:0];
+		f[25] <= f[25] + xemu_reg[25][15:0];
+		f[26] <= f[26] + xemu_reg[26][15:0];
+		f[27] <= f[27] + xemu_reg[27][15:0];
+		f[28] <= f[28] + xemu_reg[28][15:0];
+		f[29] <= f[29] + xemu_reg[29][15:0];
+		f[30] <= f[30] + xemu_reg[30][15:0];
+		f[31] <= f[31] + xemu_reg[31][15:0];
+		f[32] <= f[32] + xemu_reg[32][15:0];
 	end                           
 
 	// Instantiate L pipelined multiplier
@@ -197,9 +203,9 @@ module fir_lms         //----> Interface
 	generate
 		for (I=0; I<L; I=I+1) begin: Mul_fx
 			lpm_mult mul_xf             // Multiply  x[I]*f[I] = p[I]
-			(.dataa(x[I]), .datab(f[I]), .result(p[I]), 
-			 .clock(clk), .sum(sum),
-			 .clken(clken), .aclr(aclr)); // Unused ports
+			(.dataa(x[I]), .datab(f[I]), .result(p[I])); 
+//			 .clock(clk), .sum(sum),
+//			 .clken(clken), .aclr(aclr)); // Unused ports
 			defparam mul_xf.lpm_widtha = W1;  
 			defparam mul_xf.lpm_widthb = W1+2;
 			defparam mul_xf.lpm_widthp = W2;  
@@ -215,17 +221,19 @@ module fir_lms         //----> Interface
 				p[25] + p[26] +	p[27] + p[28] + p[29] + p[30] + p[31] + p[32];	  // Compute ADF output
 
 	// Scale y by 128 because x is fraction
-	assign e = d - (y + 8192 >>> 18) ;
-	assign emu = e >>> 1;  // e*mu divide by 2 and 
-                        // 2 from xemu makes mu=1/4
+	assign y_scaled = (y + 8192 >>> 18);
+	assign e = d - y_scaled;
+	assign e_DIV2 = e >>> 1;		// e*mu divide by 2 and 
+	assign emu = e_DIV2[W1-1:0];  	// 2 from xemu makes mu=1/4
+                        
 
 // Instantiate L pipelined multiplier
 	generate
 		for (I=0; I<L; I=I+1) begin: Mul_xemu
 			lpm_mult mul_I          // Multiply xemu[I] = emu * x[I];
-			(.dataa(x[I]), .datab(emu), .result(xemu[I]), 
-			 .clock(clk), .sum(sum),
-			 .clken(clken), .aclr(aclr)); // Unused ports
+			(.dataa(x[I]), .datab(emu), .result(xemu[I])); 
+//			 .clock(clk), .sum(sum),
+//			 .clken(clken), .aclr(aclr)); // Unused ports
 			defparam mul_I.lpm_widtha = W1;  
 			defparam mul_I.lpm_widthb = W1;
 			defparam mul_I.lpm_widthp = W2;  
@@ -235,7 +243,8 @@ module fir_lms         //----> Interface
 		end // for loop
 	endgenerate
 
-	assign  y_out  = y;    // Monitor some test signals
-	assign  e_out  = e;
-
+	assign  y_out_36  = y;    // Monitor some test signals
+	assign  e_out_36  = e;
+	assign  y_out_14  = y_scaled[W1-1:0];
+	assign  e_out_14  = e[W1-1:0];
 endmodule
