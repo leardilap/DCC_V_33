@@ -67,6 +67,7 @@ module FIR_HAM_V_33
                 clk_enable,
                 reset,
                 filter_in,
+				filter_in_out,
                 filter_out_35,
 				filter_out_14,
                 );
@@ -75,6 +76,7 @@ module FIR_HAM_V_33
   input   clk_enable; 
   input   reset; 
   input   signed [13:0] filter_in; //sfix16_En14 // LA: input from 16 to 14 bits
+  output  signed [13:0] filter_in_out; // input delayed
   output  signed [34:0] filter_out_35; //sfix35_En28
   output  signed [13:0] filter_out_14; // LA: scaled
 
@@ -670,5 +672,6 @@ module FIR_HAM_V_33
   // Assignment Statements
   assign filter_out_35 = output_register;		// Complete range
   assign filter_out_14 = output_register_14;	// Scaled signal
+  assign filter_in_out = delay_pipeline[18];
   
 endmodule  // FIR_HAM_V_33

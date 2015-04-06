@@ -166,6 +166,7 @@ reg		[12:0]			iu_sine1;
 reg		[12:0]			iu_sine10;
 
 wire		[13:0]			o_sine;
+wire		[13:0]			os_sine;
 reg		[13:0]			o_sine_p;
 reg		[13:0]			o_sine_n;
 
@@ -183,6 +184,7 @@ reg		[1:0]				cnt10;
 reg 							dir10;
 
 wire		[13:0]			fir_in_data;
+wire		[13:0]			fir_lms_in_data;
 wire		[34:0]			fir_data_35;
 wire		[13:0]			fir_data_14;
 //=======================================================
@@ -298,6 +300,13 @@ add		add_inst(
 			.result(o_sine)
 			);
 
+//--- Sum of the two signals
+add		add_S_inst(
+			.dataa({is_sine1[12],is_sine1}),
+			.datab({is_sine10[12],is_sine10}),
+			.result(os_sine)
+			);
+
 always @(negedge reset_n or posedge sys_clk)
 begin
 	if (!reset_n) begin
@@ -374,12 +383,13 @@ end
 //=======================================================
 //--- FIR
 //=======================================================
-assign	fir_in_data	= o_sine_p; // a2db_data; // a2da_data;
+assign	fir_in_data	= os_sine; // a2db_data; // a2da_data;
 FIR_HAM_V_33 FIR_HAM_V_33_INST(
-			.clk(OSC_50[0]),		// THINK of the clock Freq effect
+			.clk(sys_clk),		// THINK of the clock Freq effect
 			.clk_enable(1'b1),
 			.reset(reset_n),
 			.filter_in(fir_in_data),
+			.filter_in_out(fir_lms_in_data),
 			.filter_out_35(fir_data_35),
 			.filter_out_14(fir_data_14)
 			);
@@ -388,8 +398,8 @@ FIR_HAM_V_33 FIR_HAM_V_33_INST(
 //--- FIR_LMS
 //=======================================================
 fir_lms fir_lms_inst( 
-	.clk(OSC_50[0]),  // std_logic 
-	.x_in(fir_in_data),
+	.clk(sys_clk),  // std_logic 
+	.x_in(fir_lms_in_data),
 	.d_in(fir_data_14),
 	.e_out(),
 	.y_out());	

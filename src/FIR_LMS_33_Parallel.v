@@ -24,7 +24,7 @@
 
 module fir_lms         //----> Interface
 	#(parameter W1 = 14,   // Input bit width
-             W2 = 35,  // Multiplier bit width 2*W1
+             W2 = 36,  // Multiplier bit width 2*W1
              L  = 33,   // Filter length 
             Delay = 0) // Pipeline steps of multiplier
 	(input clk,  // 1 bit input 
@@ -34,7 +34,7 @@ module fir_lms         //----> Interface
 	// Signed data types are supported in 2001
 	// Verilog, and used whenever possible
 	reg  signed [W1-1:0] x [0:L-1]; // Data array 
-	reg  signed [W1-1:0] f [0:L-1]; // Coefficient array 
+	reg  signed [W1+1:0] f [0:L-1]; // Coefficient array 16 bits 
 	reg  signed [W1-1:0] d;
 	wire signed [W1-1:0] emu;
 	wire signed [W2-1:0] p [0:L-1]; // 1. Product array 
@@ -81,39 +81,39 @@ module fir_lms         //----> Interface
 		x[31] = 'b0;
 		x[32] = 'b0;
 		
-		f[0]  = 14'd70;
-		f[1]  = 14'd70;
-		f[2]  = 14'd70;
-		f[3]  = 14'd70;
-		f[4]  = 14'd70;
-		f[5]  = 14'd70;
-		f[6]  = 14'd70;
-		f[7]  = 14'd70;
-		f[8]  = 14'd70;
-		f[9]  = 14'd70;
-		f[10] = 14'd70;
-		f[11] = 14'd70;
-		f[12] = 14'd70;
-		f[13] = 14'd70;
-		f[14] = 14'd70;
-		f[15] = 14'd70;
-		f[16] = 14'd70;
-		f[17] = 14'd70;
-		f[18] = 14'd70;
-		f[19] = 14'd70;
-		f[20] = 14'd70;
-		f[21] = 14'd70;
-		f[22] = 14'd70;
-		f[23] = 14'd70;
-		f[24] = 14'd70;
-		f[25] = 14'd70;
-		f[26] = 14'd70;
-		f[27] = 14'd70;
-		f[28] = 14'd70;
-		f[29] = 14'd70;
-		f[30] = 14'd70;
-		f[31] = 14'd70;
-		f[32] = 14'd70;
+		f[0]  = 16'd70;
+		f[1]  = 16'd70;
+		f[2]  = 16'd70;
+		f[3]  = 16'd70;
+		f[4]  = 16'd70;
+		f[5]  = 16'd70;
+		f[6]  = 16'd70;
+		f[7]  = 16'd70;
+		f[8]  = 16'd70;
+		f[9]  = 16'd70;
+		f[10] = 16'd70;
+		f[11] = 16'd70;
+		f[12] = 16'd70;
+		f[13] = 16'd70;
+		f[14] = 16'd70;
+		f[15] = 16'd70;
+		f[16] = 16'd70;
+		f[17] = 16'd70;
+		f[18] = 16'd70;
+		f[19] = 16'd70;
+		f[20] = 16'd70;
+		f[21] = 16'd70;
+		f[22] = 16'd70;
+		f[23] = 16'd70;
+		f[24] = 16'd70;
+		f[25] = 16'd70;
+		f[26] = 16'd70;
+		f[27] = 16'd70;
+		f[28] = 16'd70;
+		f[29] = 16'd70;
+		f[30] = 16'd70;
+		f[31] = 16'd70;
+		f[32] = 16'd70;
 		
 		d = 'b0;
 	end
@@ -157,40 +157,40 @@ module fir_lms         //----> Interface
 		x[31] <= x[30];
 		x[32] <= x[31];
 		
-		f[0] <= f[0] + xemu[0][15:8]; // implicit divide by 2
-		f[1] <= f[1] + xemu[1][15:8]; 
-		f[2] <= f[2] + xemu[2][15:8];
-		f[3] <= f[3] + xemu[3][15:8];
-		f[4] <= f[4] + xemu[4][15:8];
-		f[5] <= f[5] + xemu[5][15:8];
-		f[6] <= f[6] + xemu[6][15:8];
-		f[7] <= f[7] + xemu[7][15:8];
-		f[8] <= f[8] + xemu[8][15:8];
-		f[9] <= f[9] + xemu[9][15:8];
-		f[10] <= f[10] + xemu[10][15:8];
-		f[11] <= f[11] + xemu[11][15:8];
-		f[12] <= f[12] + xemu[12][15:8];
-		f[13] <= f[13] + xemu[13][15:8];
-		f[14] <= f[14] + xemu[14][15:8];
-		f[15] <= f[15] + xemu[15][15:8];
-		f[16] <= f[16] + xemu[16][15:8];
-		f[17] <= f[17] + xemu[17][15:8];
-		f[18] <= f[18] + xemu[18][15:8];
-		f[19] <= f[19] + xemu[19][15:8];
-		f[20] <= f[20] + xemu[20][15:8];
-		f[21] <= f[21] + xemu[21][15:8];
-		f[22] <= f[22] + xemu[22][15:8];
-		f[23] <= f[23] + xemu[23][15:8];
-		f[24] <= f[24] + xemu[24][15:8];
-		f[25] <= f[25] + xemu[25][15:8];
-		f[26] <= f[26] + xemu[26][15:8];
-		f[27] <= f[27] + xemu[27][15:8];
-		f[28] <= f[28] + xemu[28][15:8];
-		f[29] <= f[29] + xemu[29][15:8];
-		f[30] <= f[30] + xemu[30][15:8];
-		f[31] <= f[31] + xemu[31][15:8];
-		f[32] <= f[32] + xemu[32][15:8];
-	end
+		f[0] <= f[0] + xemu[0][35:20]; // implicit divide by 2
+		f[1] <= f[1] + xemu[1][35:20]; 
+		f[2] <= f[2] + xemu[2][35:20];
+		f[3] <= f[3] + xemu[3][35:20];
+		f[4] <= f[4] + xemu[4][35:20];
+		f[5] <= f[5] + xemu[5][35:20];
+		f[6] <= f[6] + xemu[6][35:20];
+		f[7] <= f[7] + xemu[7][35:20];
+		f[8] <= f[8] + xemu[8][35:20];
+		f[9] <= f[9] + xemu[9][35:20];
+		f[10] <= f[10] + xemu[10][35:20];
+		f[11] <= f[11] + xemu[11][35:20];
+		f[12] <= f[12] + xemu[12][35:20];
+		f[13] <= f[13] + xemu[13][35:20];
+		f[14] <= f[14] + xemu[14][35:20];
+		f[15] <= f[15] + xemu[15][35:20];
+		f[16] <= f[16] + xemu[16][35:20];
+		f[17] <= f[17] + xemu[17][35:20];
+		f[18] <= f[18] + xemu[18][35:20];
+		f[19] <= f[19] + xemu[19][35:20];
+		f[20] <= f[20] + xemu[20][35:20];
+		f[21] <= f[21] + xemu[21][35:20];
+		f[22] <= f[22] + xemu[22][35:20];
+		f[23] <= f[23] + xemu[23][35:20];
+		f[24] <= f[24] + xemu[24][35:20];
+		f[25] <= f[25] + xemu[25][35:20];
+		f[26] <= f[26] + xemu[26][35:20];
+		f[27] <= f[27] + xemu[27][35:20];
+		f[28] <= f[28] + xemu[28][35:20];
+		f[29] <= f[29] + xemu[29][35:20];
+		f[30] <= f[30] + xemu[30][35:20];
+		f[31] <= f[31] + xemu[31][35:20];
+		f[32] <= f[32] + xemu[32][35:20];
+	end                           
 
 	// Instantiate L pipelined multiplier
 	
@@ -201,7 +201,7 @@ module fir_lms         //----> Interface
 			 .clock(clk), .sum(sum),
 			 .clken(clken), .aclr(aclr)); // Unused ports
 			defparam mul_xf.lpm_widtha = W1;  
-			defparam mul_xf.lpm_widthb = W1;
+			defparam mul_xf.lpm_widthb = W1+2;
 			defparam mul_xf.lpm_widthp = W2;  
 			defparam mul_xf.lpm_widths = W2;
 			defparam mul_xf.lpm_pipeline = Delay;
@@ -215,7 +215,7 @@ module fir_lms         //----> Interface
 				p[25] + p[26] +	p[27] + p[28] + p[29] + p[30] + p[31] + p[32];	  // Compute ADF output
 
 	// Scale y by 128 because x is fraction
-	assign e = d - (y >>> 7) ;
+	assign e = d - (y + 8192 >>> 18) ;
 	assign emu = e >>> 1;  // e*mu divide by 2 and 
                         // 2 from xemu makes mu=1/4
 
